@@ -38,7 +38,7 @@ public:
       pMem = new T[sz];
       std::copy(arr, arr + sz, pMem);
   }
-  TDynamicVector(const TDynamicVector& v) : sz(v.size());
+  TDynamicVector(const TDynamicVector<T>& v) : sz(v.size())
   {
       T* new_pMem = new T[sz];
       try {
@@ -53,16 +53,37 @@ public:
   TDynamicVector(TDynamicVector&& v) noexcept
   {
       v.sz = 0;
+      v.pMem = nullptr;
   }
   ~TDynamicVector()
   {
+      delete[] pMem;
   }
   TDynamicVector& operator=(const TDynamicVector& v)
   {
-      throw "Method is not implemented";
+      if (this == &v) return *this;
+      if (this->sz != v.sz) {
+        delete[] this.pMem;
+        this->sz = v.sz;
+        pMem = new T[sz];
+      }
+      for (int i = 0; i < sz; i++) {
+        pMem[i] = v.pMem[i];
+      }
+      return *this;
   }
   TDynamicVector& operator=(TDynamicVector&& v) noexcept
   {
+      if (this == &v) return *this;
+      delete pMem[];
+
+      
+      this->sz = v.sz;
+      this->pMem = v.pMem;
+
+      v.sz = 0;
+      v.pMem = nullptr;
+
       return *this;
   }
 
@@ -71,44 +92,69 @@ public:
   // индексация
   T& operator[](size_t ind)
   {
-      throw "Method is not implemented";
+      if (ind >= sz) {
+          throw out_of_range("ind >= sz");
+      }
+      return pMem[ind];
   }
   const T& operator[](size_t ind) const
   {
-      throw "Method is not implemented";
+      if (ind >= sz) {
+          throw out_of_range("ind >= sz");
+      }
+      return pMem[ind];throw "Method is not implemented";
   }
   // индексация с контролем
   T& at(size_t ind)
   {
-      throw "Method is not implemented";
+      if (ind >= sz) {
+          throw out_of_range("ind >= sz");
+      }
+      return pMem[ind];
   }
   const T& at(size_t ind) const
   {
-      throw "Method is not implemented";
+      if (ind >= sz) {
+          throw out_of_range("ind >= sz");
+      }
+      return pMem[ind];
   }
 
   // сравнение
   bool operator==(const TDynamicVector& v) const noexcept
   {
-      throw "Method is not implemented";
+      if (v.sz != this->sz) return false;
+      for (int i = 0; i < sz; i++) {
+          if (v.pMem[i] != this->pMem[i]) return false;
+      }
+      return true;
   }
   bool operator!=(const TDynamicVector& v) const noexcept
   {
-      throw "Method is not implemented";
+      return !((*this) == v);
   }
 
   // скалярные операции
   TDynamicVector operator+(T val)
   {
-      throw "Method is not implemented";
+      TDynamicVector res(*this);
+      for (int i = 0; i < sz; i++) {
+          res.pMem[i] += val;
+      }
+      return res;
   }
   TDynamicVector operator-(T val)
   {
-      throw "Method is not implemented";
+      return (*this) + (val * (-1));
   }
   TDynamicVector operator*(T val)
   {
-      throw "Method is not implemented";
+      TDynamicVector v1(*this);
+      for (int i = 0; i < sz; i++) {
+          v1.pMem[i] *= val;
+      }
+
+      return v1;
   }
 
   // векторные операции
